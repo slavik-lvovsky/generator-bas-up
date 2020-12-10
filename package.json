@@ -3,10 +3,12 @@
   "displayName": "BAS Uploader",
   "version": "1.0.0",
   "description": "uploads extension to BAS",
-  "homepage": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/slavik-lvovsky/generator-bas-up.git"
+  },
   "author": {
-    "name": "LASP-LATFORMS",
-    "email": "stanislav.lvovsky@sap.com"
+    "name": "LAS-PLATFORMS"
   },
   "files": [
     "generators"
@@ -27,7 +29,7 @@
     "lodash": "4.17.20",
     "puppeteer": "5.4.1",
     "yeoman-generator": "4.12.0",
-    "yo": "^3.1.1"
+    "puppeteer-page-objects": "latest"
   },
   "devDependencies": {
     "eslint": "^7.15.0"
