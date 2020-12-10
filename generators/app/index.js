@@ -3,6 +3,7 @@
 const Generator = require('yeoman-generator');
 const _ = require('lodash');
 const uploader = require('./uploader');
+const types = require("@sap-devx/yeoman-ui-types");
 
 
 const basEnvironments = [{
@@ -35,6 +36,19 @@ const canaryDevSpaces = [{
 }];
 
 module.exports = class extends Generator {
+  constructor(args, opts) {
+    super(args, opts);
+
+    this.setPromptsCallback = fn => {
+      if (this.prompts) {
+        this.prompts.setCallback(fn);
+      }
+    };
+
+    const prompts = [{ name: "BAS Target Environment", description: "Provide BAS url and dev space name." }];
+    this.prompts = new types.Prompts(prompts);
+  }
+
   _getSpaces(envName) {
     return (envName === 'CANARY' ?
       commonDevSpaces.concat(canaryDevSpaces).concat(basicSpace) : commonDevSpaces.concat(basicSpace));
@@ -53,7 +67,7 @@ module.exports = class extends Generator {
         type: "list",
         message: "Space Type",
         choices: value => this._getSpaces(_.get(value, "env")),
-        default: "Full Stack Cloud Application"
+        default: "SAP Fiori"
       }
     ];
 
