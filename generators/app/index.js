@@ -45,7 +45,7 @@ module.exports = class extends Generator {
       }
     };
 
-    const prompts = [{ name: "BAS Target Environment", description: "Provide BAS url and dev space name." }];
+    const prompts = [{ name: "Environment and Space", description: "Provide BAS environment and dev space name." }];
     this.prompts = new types.Prompts(prompts);
   }
 
@@ -59,15 +59,20 @@ module.exports = class extends Generator {
       {
         name: "env",
         type: "list",
-        message: "BAS Target Environment",
+        message: "BAS Environment",
         choices: basEnvironments,
         default: "STAGING"
       }, {
         name: "space",
         type: "list",
-        message: "Space Type",
-        choices: value => this._getSpaces(_.get(value, "env")),
+        message: "Dev Space Name",
+        choices: value => this._getSpaces(value.env),
         default: "SAP Fiori"
+      }, {
+        name: "headless",
+        type: "confirm",
+        message: "Do you want to see the progress?",
+        default: true
       }
     ];
 
@@ -77,6 +82,7 @@ module.exports = class extends Generator {
   async writing() {
     const url = _.find(basEnvironments, { name: this.answers.env }).url;
     const space = this.answers.space;
-    await uploader.execute({ url, space });
+    const headless = !this.answers.headless;
+    await uploader.execute({ url, space, headless });
   }
 };
