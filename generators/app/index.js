@@ -63,32 +63,31 @@ module.exports = class extends Generator {
   }
 
   _getSpaces(envName) {
-    return (envName === 'CANARY' ?
-      commonDevSpaces.concat(canaryDevSpaces).concat(basicSpace) : commonDevSpaces.concat(basicSpace));
+    return envName === 'CANARY' ?
+      commonDevSpaces.concat(canaryDevSpaces).concat(basicSpace) :
+      commonDevSpaces.concat(basicSpace);
   }
 
   async initializing() {
-    let errorMessage;
-
     try {
       const packageJson = await this._getExtensionPackageJson();
       if (!_.get(packageJson, "engines.vscode")) {
-        errorMessage = `${this.extensionPath} is not a vscode extension`;
+        this.errorMessage = `${this.extensionPath} is not a vscode extension`;
       } else {
         const extName = packageJson.name;
         const extVersion = packageJson.version;
         this.vsixPath = path.join(this.extensionPath, `${extName}-${extVersion}.vsix`);
         if (!fsextra.existsSync(this.vsixPath)) {
-          errorMessage = `${this.vsixPath} was not found`;
+          this.errorMessage = `${this.vsixPath} was not found`;
         }
       }
     } catch (error) {
-      errorMessage = `${this.packageJsonPath} was not found`;
+      this.errorMessage = `${this.packageJsonPath} was not found`;
     }
 
-    if (errorMessage) {
-      this.appWizard.showError(errorMessage, types.MessageType.prompt);
-      this.log.error(errorMessage);
+    if (this.errorMessage) {
+      this.appWizard.showError(this.errorMessage, types.MessageType.prompt);
+      this.log.error(this.errorMessage);
       exit(1);
     }
   }
@@ -99,18 +98,21 @@ module.exports = class extends Generator {
       type: "list",
       message: "BAS Environment",
       choices: basEnvironments,
-      default: "STAGING"
+      store: true,
+      validate: () => {
+        return this.errorMessage ? false: true;
+      }
     }, {
       name: "space",
       type: "list",
       message: "Dev Space Name",
       choices: value => this._getSpaces(value.env),
-      default: "SAP Fiori"
+      store: true
     }, {
       name: "headless",
       type: "confirm",
       message: "Do you want to see the progress?",
-      default: true
+      store: true
     }];
 
     this.answers = await this.prompt(prompts);
