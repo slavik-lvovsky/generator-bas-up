@@ -42,6 +42,8 @@ module.exports = class extends Generator {
   constructor(args, opts) {
     super(args, opts);
 
+    this.opts = opts;
+
     this.appWizard = types.AppWizard.create(opts);
 
     this.extensionPath = _.get(opts, "data.extensionPath", process.cwd());
@@ -100,14 +102,14 @@ module.exports = class extends Generator {
       choices: basEnvironments,
       store: true,
       validate: () => {
-        return this.errorMessage ? false: true;
+        return this.errorMessage ? false : true;
       }
     }, {
       name: "space",
       type: "list",
       message: "Dev Space Name",
       choices: value => this._getSpaces(value.env),
-      store: true
+      default: "SAP Fiori"
     }, {
       name: "headless",
       type: "confirm",
@@ -119,9 +121,16 @@ module.exports = class extends Generator {
   }
 
   async writing() {
-    const url = _.find(basEnvironments, { name: this.answers.env }).url;
+    this.url = _.find(basEnvironments, { name: this.answers.env }).url;
     const space = this.answers.space;
     const headless = !this.answers.headless;
-    await uploader.execute({ url, space, headless, vsixPath: this.vsixPath });
+    await uploader.execute({ url: this.url, space, headless, vsixPath: this.vsixPath });
+  }
+
+  end() {
+    const vscode = _.get(this.opts, "vscode");
+    if (!this.errorMessage && vscode) {
+      vscode.env.openExternal(this.url);
+    }
   }
 };
