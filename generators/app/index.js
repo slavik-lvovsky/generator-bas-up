@@ -90,7 +90,6 @@ module.exports = class extends Generator {
     if (this.errorMessage) {
       this.appWizard.showError(this.errorMessage, types.MessageType.prompt);
       this.log.error(this.errorMessage);
-      exit(1);
     }
   }
 
