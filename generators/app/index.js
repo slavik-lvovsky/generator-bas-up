@@ -1,23 +1,22 @@
-'use strict';
+"use strict";
 
-const Generator = require('yeoman-generator');
-const _ = require('lodash');
-const path = require('path');
-const fsextra = require('fs-extra');
-const uploader = require('./uploader');
+const Generator = require("yeoman-generator");
+const _ = require("lodash");
+const path = require("path");
+const fsextra = require("fs-extra");
+const uploader = require("./uploader");
 const types = require("@sap-devx/yeoman-ui-types");
-const { exit } = require('process');
 
 
 const basEnvironments = [{
-  name: 'CI',
-  url: 'https://wingtestsubacc.ci10cf.int.applicationstudio.cloud.sap/index.html'
+  name: "CI",
+  url: "https://wingtestsubacc.ci10cf.int.applicationstudio.cloud.sap/index.html"
 }, {
-  name: 'STAGING',
-  url: 'https://wingtestsubacc.stg10cf.int.applicationstudio.cloud.sap/index.html'
+  name: "STAGING",
+  url: "https://wingtestsubacc.stg10cf.int.applicationstudio.cloud.sap/index.html"
 }, {
-  name: 'CANARY',
-  url: 'https://webide.cry10cf.int.applicationstudio.cloud.sap/index.html'
+  name: "CANARY",
+  url: "https://webide.cry10cf.int.applicationstudio.cloud.sap/index.html"
 }];
 
 const basicSpace = {
@@ -65,7 +64,7 @@ module.exports = class extends Generator {
   }
 
   _getSpaces(envName) {
-    return envName === 'CANARY' ?
+    return envName === "CANARY" ?
       commonDevSpaces.concat(canaryDevSpaces).concat(basicSpace) :
       commonDevSpaces.concat(basicSpace);
   }
@@ -76,9 +75,9 @@ module.exports = class extends Generator {
       if (!_.get(packageJson, "engines.vscode")) {
         this.errorMessage = `${this.extensionPath} is not a vscode extension`;
       } else {
-        const extName = packageJson.name;
-        const extVersion = packageJson.version;
-        this.vsixPath = path.join(this.extensionPath, `${extName}-${extVersion}.vsix`);
+        this.extName = packageJson.name;
+        this.extVersion = packageJson.version;
+        this.vsixPath = path.join(this.extensionPath, `${this.extName}-${this.extVersion}.vsix`);
         if (!fsextra.existsSync(this.vsixPath)) {
           this.errorMessage = `${this.vsixPath} was not found`;
         }
@@ -90,6 +89,7 @@ module.exports = class extends Generator {
     if (this.errorMessage) {
       this.appWizard.showError(this.errorMessage, types.MessageType.prompt);
       this.log.error(this.errorMessage);
+      process.exit(1);
     }
   }
 
@@ -104,11 +104,27 @@ module.exports = class extends Generator {
         return this.errorMessage ? false : true;
       }
     }, {
-      name: "space",
+      name: "spaceType",
       type: "list",
-      message: "Dev Space Name",
+      message: "Dev Space Type",
       choices: value => this._getSpaces(value.env),
       default: "SAP Fiori"
+    }, {
+      name: "spaceName",
+      type: "input",
+      message: "Dev Space Name",
+      validate: (value) => {
+        const isValidName = /^[a-zA-Z0-9][a-zA-Z0-9_]{0,39}$/.test(
+          value
+        );
+        return isValidName ? true : "The name must start with a letter or number and may contain any alphanumeric characters or underscores.Special characters can't be used."
+      },
+      default: () => {
+        const regExp = /[^a-zA-Z0-9]+/g;
+        const name = this.extName.replace(regExp, "_");
+        const version = this.extVersion.replace(regExp, "");
+        return `${name}${version}_${Date.now()}`;
+      }
     }, {
       name: "headless",
       type: "confirm",
@@ -121,15 +137,16 @@ module.exports = class extends Generator {
 
   async writing() {
     this.url = _.find(basEnvironments, { name: this.answers.env }).url;
-    const space = this.answers.space;
+    const spaceType = this.answers.spaceType;
+    const spaceName = this.answers.spaceName;
     const headless = !this.answers.headless;
-    await uploader.execute({ url: this.url, space, headless, vsixPath: this.vsixPath });
+    await uploader.execute({ url: this.url, spaceType, spaceName, headless, vsixPath: this.vsixPath });
   }
 
   end() {
     const vscode = _.get(this.opts, "vscode");
     if (!this.errorMessage && vscode) {
-      vscode.env.openExternal(this.url);
+      vscode.env.openExternal(this.url); // TODO: open url of created devspace 
     }
   }
 };
