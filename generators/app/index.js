@@ -107,7 +107,14 @@ module.exports = class extends Generator {
       name: "spaceType",
       type: "list",
       message: "Dev Space Type",
-      choices: value => this._getSpaces(value.env),
+      choices: () => this.spaces,
+      when: answers => {
+        this.spaces = this._getSpaces(answers.env);
+        return true;
+      },
+      guiOptions: {
+        applyDefaultWhenDirty: true
+      },
       default: "SAP Fiori"
     }, {
       name: "spaceName",
