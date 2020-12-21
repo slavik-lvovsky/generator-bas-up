@@ -8,7 +8,7 @@ const uploader = require("./uploader");
 const types = require("@sap-devx/yeoman-ui-types");
 
 
-const basEnvironments = [{
+const BAS_ENVIRONMENTS = [{
   name: "CI",
   url: "https://wingtestsubacc.ci10cf.int.applicationstudio.cloud.sap/index.html"
 }, {
@@ -19,11 +19,11 @@ const basEnvironments = [{
   url: "https://webide.cry10cf.int.applicationstudio.cloud.sap/index.html"
 }];
 
-const basicSpace = {
+const BASIC_SPACE = {
   name: "Basic"
 };
 
-const commonDevSpaces = [{
+const COMMON_DEV_SPACES = [{
   name: "SAP Fiori"
 }, {
   name: "Full Stack Cloud Application"
@@ -31,7 +31,7 @@ const commonDevSpaces = [{
   name: "SAP HANA Native Application"
 }];
 
-const canaryDevSpaces = [{
+const CANARY_DEV_SPACES = [{
   name: "SAP SME Business Application"
 }, {
   name: "SAP Mobile Application"
@@ -64,9 +64,7 @@ module.exports = class extends Generator {
   }
 
   _getSpaces(envName) {
-    return envName === "CANARY" ?
-      commonDevSpaces.concat(canaryDevSpaces).concat(basicSpace) :
-      commonDevSpaces.concat(basicSpace);
+    return COMMON_DEV_SPACES.concat(envName === "CANARY" ? CANARY_DEV_SPACES : []).concat(BASIC_SPACE);
   }
 
   async initializing() {
@@ -98,7 +96,7 @@ module.exports = class extends Generator {
       name: "env",
       type: "list",
       message: "BAS Environment",
-      choices: basEnvironments,
+      choices: BAS_ENVIRONMENTS,
       store: true,
       validate: () => {
         return this.errorMessage ? false : true;
@@ -132,28 +130,15 @@ module.exports = class extends Generator {
         const version = this.extVersion.replace(regExp, "");
         return `${name}${version}_${Date.now()}`;
       }
-    }, {
-      name: "headless",
-      type: "confirm",
-      message: "Do you want to see the progress?",
-      store: true
     }];
 
     this.answers = await this.prompt(prompts);
   }
 
   async writing() {
-    this.url = _.find(basEnvironments, { name: this.answers.env }).url;
+    this.url = _.find(BAS_ENVIRONMENTS, { name: this.answers.env }).url;
     const spaceType = this.answers.spaceType;
     const spaceName = this.answers.spaceName;
-    const headless = !this.answers.headless;
-    await uploader.execute({ url: this.url, spaceType, spaceName, headless, vsixPath: this.vsixPath });
-  }
-
-  end() {
-    const vscode = _.get(this.opts, "vscode");
-    if (!this.errorMessage && vscode) {
-      vscode.env.openExternal(this.url); // TODO: open url of created devspace 
-    }
+    await uploader.execute({ url: this.url, spaceType, spaceName, vsixPath: this.vsixPath });
   }
 };
