@@ -54,4 +54,6 @@ exports.execute = async data => {
     await theiaPage.waitForTheiaToBeVisible(page);
     
     browser.close();
+    
+    return page._target._targetInfo.url;
 }
