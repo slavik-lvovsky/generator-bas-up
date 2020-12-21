@@ -13,8 +13,7 @@ exports.execute = async data => {
     const password = data.password; 
 
     const browser = await puppeteer.launch({
-        headless: false,
-        slowMo: 30,
+        slowMo: 40,
         defaultViewport: null,
         args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage", "--start-maximized", "--ignore-certificate-errors", "--window-size=1920,1080"]
     });
@@ -53,4 +52,8 @@ exports.execute = async data => {
 
     await devSpacesPage.enterDevSpace(page, dsName);
     await theiaPage.waitForTheiaToBeVisible(page);
+    
+    browser.close();
+    
+    return page._target._targetInfo.url;
 }
