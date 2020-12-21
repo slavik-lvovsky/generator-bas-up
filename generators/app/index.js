@@ -135,13 +135,13 @@ module.exports = class extends Generator {
       type: "input",
       message: "User Name",
       store: true
-      }, {
-        name: "password",
-        type: "password",
-        message: "Password",
-        mask: true,
-        store: true
-      }];
+    }, {
+      name: "password",
+      type: "password",
+      message: "Password",
+      mask: true,
+      store: true
+    }];
 
     this.answers = await this.prompt(prompts);
   }
@@ -152,6 +152,10 @@ module.exports = class extends Generator {
     const spaceName = this.answers.spaceName;
     const username = this.answers.username;
     const password = this.answers.password;
-    await uploader.execute({ url: this.url, spaceType, spaceName, vsixPath: this.vsixPath, username, password });
+    this.target = await uploader.execute({ url: this.url, spaceType, spaceName, vsixPath: this.vsixPath, username, password });
+  }
+
+  end() {
+    this.log(this.target);
   }
 };
