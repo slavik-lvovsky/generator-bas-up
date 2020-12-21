@@ -52,4 +52,6 @@ exports.execute = async data => {
 
     await devSpacesPage.enterDevSpace(page, dsName);
     await theiaPage.waitForTheiaToBeVisible(page);
+    
+    browser.close();
 }
