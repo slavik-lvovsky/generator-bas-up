@@ -130,7 +130,18 @@ module.exports = class extends Generator {
         const version = this.extVersion.replace(regExp, "");
         return `${name}${version}_${Date.now()}`;
       }
-    }];
+    }, {
+      name: "username",
+      type: "input",
+      message: "User Name",
+      store: true
+      }, {
+        name: "password",
+        type: "password",
+        message: "Password",
+        mask: true,
+        store: true
+      }];
 
     this.answers = await this.prompt(prompts);
   }
@@ -139,6 +150,8 @@ module.exports = class extends Generator {
     this.url = _.find(BAS_ENVIRONMENTS, { name: this.answers.env }).url;
     const spaceType = this.answers.spaceType;
     const spaceName = this.answers.spaceName;
-    await uploader.execute({ url: this.url, spaceType, spaceName, vsixPath: this.vsixPath });
+    const username = this.answers.username;
+    const password = this.answers.password;
+    await uploader.execute({ url: this.url, spaceType, spaceName, vsixPath: this.vsixPath, username, password });
   }
 };

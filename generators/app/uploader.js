@@ -1,16 +1,16 @@
 "use strict";
 
 const puppeteer = require("puppeteer");
-const LoginPage = require('puppeteer-page-objects/common/pageObjects/Login/LoginPage');
-const DevSpacesPage = require('puppeteer-page-objects/common/pageObjects/DevSpaces/DevSpacesPage');
-const TheiaPage = require('puppeteer-page-objects/common/pageObjects/Theia/TheiaPage');
+const LoginPage = require("puppeteer-page-objects/common/pageObjects/Login/LoginPage");
+const DevSpacesPage = require("puppeteer-page-objects/common/pageObjects/DevSpaces/DevSpacesPage");
+const TheiaPage = require("puppeteer-page-objects/common/pageObjects/Theia/TheiaPage");
 
 exports.execute = async data => {
     const webIdeUrl = data.url;
     const dsName = data.spaceName;
     const dsTypeName = data.spaceType;
-    const username = "puppeteermanualtest01@gmail.com";
-    const password = "Mars_1209";
+    const username = data.username; 
+    const password = data.password; 
 
     const browser = await puppeteer.launch({
         headless: false,

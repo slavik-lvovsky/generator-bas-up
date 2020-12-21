@@ -1,7 +1,7 @@
 {
   "name": "generator-bas-up",
   "displayName": "BAS Uploader",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "uploads extension to BAS",
   "keywords": [
     "generator",
@@ -25,7 +25,6 @@
   },
   "dependencies": {
     "@sap-devx/yeoman-ui-types": "1.0.2",
-    "chai": "4.2.0",
     "fs-extra": "9.0.1",
     "lodash": "4.17.20",
     "puppeteer": "2.0.0",
@@ -35,6 +34,7 @@
     "eslint": "^6.8.0"
   },
   "peerDependencies": {
+    "chai": "4.2.0",
     "puppeteer-page-objects": "latest"
   },
   "engines": {
