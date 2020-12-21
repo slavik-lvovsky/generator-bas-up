@@ -7,10 +7,12 @@ First, install [Yeoman](http://yeoman.io) and generator-bas-up using [npm](https
 
 ```bash
 npm install -g yo
-npm install -g generator-bas-up
+npm i -g https://github.com/slavik-lvovsky/generator-bas-up.git
+npm i -g puppeteer-page-objects@latest --registry https://nexus.wdf.sap.corp:8443/nexus/content/groups/build.milestones.npm
+npm i -g chai
 ```
 
-Then upload your vsix:
+To upload your vsix run the following command from an extension directory:
 
 ```bash
 yo bas-up
