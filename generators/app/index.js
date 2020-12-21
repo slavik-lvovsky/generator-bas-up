@@ -6,6 +6,7 @@ const path = require("path");
 const fsextra = require("fs-extra");
 const uploader = require("./uploader");
 const types = require("@sap-devx/yeoman-ui-types");
+const BottomBar = require("inquirer/lib/ui/bottom-bar");
 
 
 const BAS_ENVIRONMENTS = [{
@@ -147,15 +148,27 @@ module.exports = class extends Generator {
   }
 
   async writing() {
-    this.url = _.find(BAS_ENVIRONMENTS, { name: this.answers.env }).url;
-    const spaceType = this.answers.spaceType;
-    const spaceName = this.answers.spaceName;
-    const username = this.answers.username;
-    const password = this.answers.password;
-    this.targetUrl = await uploader.execute({ url: this.url, spaceType, spaceName, vsixPath: this.vsixPath, username, password });
+    const loader = ['/ ', '| ', '\\ ', '- '];
+    let i = 4;
+    const ui = new BottomBar({ bottomBar: loader[i % 4] });
+
+    this.intervalId = setInterval(() => {
+      ui.updateBottomBar(loader[i++ % 4]);
+    }, 100);
+
+    try {
+      this.url = _.find(BAS_ENVIRONMENTS, { name: this.answers.env }).url;
+      const spaceType = this.answers.spaceType;
+      const spaceName = this.answers.spaceName;
+      const username = this.answers.username;
+      const password = this.answers.password;
+      this.targetUrl = await uploader.execute({ url: this.url, spaceType, spaceName, vsixPath: this.vsixPath, username, password });
+    } catch (e) {
+      this.errorMessage = _.get(e, "message", "internal error occured");
+    }
+
+    clearInterval(this.intervalId);
+    ui.updateBottomBar(this.errorMessage || this.targetUrl );
   }
-  
-  end() {
-    this.log(this.targetUrl);
-  }
+
 };
