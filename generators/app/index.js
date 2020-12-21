@@ -168,7 +168,7 @@ module.exports = class extends Generator {
       vsix: {
         path: this.vsixPath, name: this.vsixName
       }, username, password
-    });
+    }, this);
     const after = Date.now();
     this.uploadTime = after - before;
     // clearInterval(this.intervalId);
@@ -176,7 +176,7 @@ module.exports = class extends Generator {
 
   end() { 
     const line = "-".repeat(_.size(this.targetUrl));
-    this.log(`Uploaded in just: ${this.uploadTime} millis`);
+    this.log(`\n\n\nUploaded in just: ${this.uploadTime} millis`);
     this.log(line);
     this.log(this.targetUrl);
     this.log(line);
