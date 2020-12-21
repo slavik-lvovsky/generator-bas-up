@@ -29,7 +29,9 @@
     "inquirer": "^7.3.3",
     "lodash": "4.17.20",
     "puppeteer": "2.0.0",
-    "yeoman-generator": "4.12.0"
+    "yeoman-generator": "4.12.0",
+    "chai": "4.2.0",
+    "puppeteer-page-objects": "latest"
   },
   "devDependencies": {
     "eslint": "^6.8.0"

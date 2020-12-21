@@ -170,14 +170,21 @@ module.exports = class extends Generator {
       }, username, password
     });
     const after = Date.now();
-    console.error("res - " + (after - before));
+    this.uploadTime = after - before;
     // clearInterval(this.intervalId);
   }
 
-  end() {
-    this.log("\n\n\n---------------------------------------------------------");
-    this.log(this.targetUrl || this.url);
-    this.log("---------------------------------------------------------");
+  end() { 
+    const line = "-".repeat(_.size(this.targetUrl));
+    this.log(`Uploaded in just: ${this.uploadTime} millis`);
+    this.log(line);
+    this.log(this.targetUrl);
+    this.log(line);
+
+    const vscode = _.get(this.opts, "vscode");
+    if (vscode) {
+      vscode.env.openExternal(this.targetUrl);
+    }
   }
 };
 
