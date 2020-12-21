@@ -25,7 +25,6 @@
   },
   "dependencies": {
     "@sap-devx/yeoman-ui-types": "1.0.2",
-    "chai": "4.2.0",
     "fs-extra": "9.0.1",
     "lodash": "4.17.20",
     "puppeteer": "2.0.0",
