@@ -5,12 +5,18 @@ const LoginPage = require("puppeteer-page-objects/common/pageObjects/Login/Login
 const DevSpacesPage = require("puppeteer-page-objects/common/pageObjects/DevSpaces/DevSpacesPage");
 const TheiaPage = require("puppeteer-page-objects/common/pageObjects/Theia/TheiaPage");
 
+const DEFAULT_PLUGINS = "default-plugins";
+const USER = "user";
+const HOME_USER = `/home/${USER}`;
+
 exports.execute = async data => {
     const webIdeUrl = data.url;
     const dsName = data.spaceName;
     const dsTypeName = data.spaceType;
-    const username = data.username; 
-    const password = data.password; 
+    const username = data.username;
+    const password = data.password;
+    const vsixPath = data.vsix.path;
+    const vsixName = data.vsix.name;
 
     const browser = await puppeteer.launch({
         slowMo: 40,
@@ -31,18 +37,19 @@ exports.execute = async data => {
     const theiaPage = new TheiaPage();
     await theiaPage.waitforTheiaToLoad(page);
     await theiaPage.openWorkSpaceFolderDialog(page);
-    await theiaPage.openWorkspace(page, "user");
-    await theiaPage.createFolder(page, "default-plugins");
-    await theiaPage.selectNode(page, "default-plugins", "", true, "/home/user");
+    await theiaPage.openWorkspace(page, USER);
+    await theiaPage.createFolder(page, DEFAULT_PLUGINS);
+    await theiaPage.selectNode(page, DEFAULT_PLUGINS, "", true, HOME_USER);
+
+    const targetUrl = page._target._targetInfo.url;
 
     const [fileChooser] = await Promise.all([
         page.waitForFileChooser(),
         theiaPage.goThroughMenubarItemsAndSelect(page, ["File", "Upload Files..."])
     ]);
 
-    await fileChooser.accept([data.vsixPath]);
-    await theiaPage.checkNotificationText(page, "Uploading Files...: 0 out of 1");
-    await page.waitFor(10000);
+    await fileChooser.accept([vsixPath]);
+    await theiaPage.selectNode(page, `${DEFAULT_PLUGINS}/${vsixName}`, "", false, HOME_USER);
     await page.goto(data.url);
     await devSpacesPage.stopDevSpace(page, dsName);
     await devSpacesPage.waitForDevSpaceStoppedStatus(page, dsName, 1000000);
@@ -50,10 +57,7 @@ exports.execute = async data => {
     await devSpacesPage.waitForDevSpaceStartingStatus(page, dsName, 1000000);
     await devSpacesPage.waitForDevSpaceRunningStatus(page, dsName, 1000000);
 
-    await devSpacesPage.enterDevSpace(page, dsName);
-    await theiaPage.waitForTheiaToBeVisible(page);
-    
-    browser.close();
-    
-    return page._target._targetInfo.url;
+    await browser.close();
+
+    return targetUrl;
 }

@@ -76,7 +76,8 @@ module.exports = class extends Generator {
       } else {
         this.extName = packageJson.name;
         this.extVersion = packageJson.version;
-        this.vsixPath = path.join(this.extensionPath, `${this.extName}-${this.extVersion}.vsix`);
+        this.vsixName = `${this.extName}-${this.extVersion}.vsix`;
+        this.vsixPath = path.join(this.extensionPath, this.vsixName);
         if (!fsextra.existsSync(this.vsixPath)) {
           this.errorMessage = `${this.vsixPath} was not found`;
         }
@@ -148,27 +149,35 @@ module.exports = class extends Generator {
   }
 
   async writing() {
-    const loader = ['/ ', '| ', '\\ ', '- '];
-    let i = 4;
-    const ui = new BottomBar({ bottomBar: loader[i % 4] });
+    // const loader = ['/ ', '| ', '\\ ', '- '];
+    // let i = 4;
+    // const ui = new BottomBar({ bottomBar: loader[i % 4] });
 
-    this.intervalId = setInterval(() => {
-      ui.updateBottomBar(loader[i++ % 4]);
-    }, 100);
+    // this.intervalId = setInterval(() => {
+    //   ui.updateBottomBar(loader[i++ % 4]);
+    // }, 100);
 
-    try {
-      this.url = _.find(BAS_ENVIRONMENTS, { name: this.answers.env }).url;
-      const spaceType = this.answers.spaceType;
-      const spaceName = this.answers.spaceName;
-      const username = this.answers.username;
-      const password = this.answers.password;
-      this.targetUrl = await uploader.execute({ url: this.url, spaceType, spaceName, vsixPath: this.vsixPath, username, password });
-    } catch (e) {
-      this.errorMessage = _.get(e, "message", "internal error occured");
-    }
-
-    clearInterval(this.intervalId);
-    ui.updateBottomBar(this.errorMessage || this.targetUrl );
+    this.url = _.find(BAS_ENVIRONMENTS, { name: this.answers.env }).url;
+    const spaceType = this.answers.spaceType;
+    const spaceName = this.answers.spaceName;
+    const username = this.answers.username;
+    const password = this.answers.password;
+    const before = Date.now();
+    this.targetUrl = await uploader.execute({
+      url: this.url, spaceType, spaceName,
+      vsix: {
+        path: this.vsixPath, name: this.vsixName
+      }, username, password
+    });
+    const after = Date.now();
+    console.error("res - " + (after - before));
+    // clearInterval(this.intervalId);
   }
 
+  end() {
+    this.log("\n\n\n---------------------------------------------------------");
+    this.log(this.targetUrl || this.url);
+    this.log("---------------------------------------------------------");
+  }
 };
+
