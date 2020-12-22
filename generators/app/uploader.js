@@ -12,16 +12,25 @@ const HOME_USER = `/home/${USER}`;
 exports.execute = async (data, gen) => {
     const webIdeUrl = data.url;
     const dsName = data.spaceName;
-    const dsTypeName = data.spaceType;
+    let dsTypeName = data.spaceType;
     const username = data.username;
     const password = data.password;
     const vsixPath = data.vsix.path;
     const vsixName = data.vsix.name;
 
+    if (dsTypeName === "SAP Mobile Application") {
+        dsTypeName = "SAP Mobile Services";
+    } else if (dsTypeName === "Full Stack Cloud Application") {
+        dsTypeName = "SAP Cloud Business Application";
+    } else if (dsTypeName === "SAP HANA Native Application") {
+        dsTypeName = "SAP Hana";
+    }
+
     gen.log("\n\n\n");
     gen.log("1 of 6 ==> logging in...");
     const browser = await puppeteer.launch({
-        slowMo: 40,
+        headless: true,
+        slowMo: 30,
         defaultViewport: null,
         args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage", "--start-maximized", "--ignore-certificate-errors", "--window-size=1920,1080"]
     });

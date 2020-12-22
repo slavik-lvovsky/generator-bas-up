@@ -24,6 +24,10 @@ const BASIC_SPACE = {
   name: "Basic"
 };
 
+const LCAP_SPACE = {
+  name: "LCAP"
+};
+
 const COMMON_DEV_SPACES = [{
   name: "SAP Fiori"
 }, {
@@ -65,7 +69,11 @@ module.exports = class extends Generator {
   }
 
   _getSpaces(envName) {
-    return COMMON_DEV_SPACES.concat(envName === "CANARY" ? CANARY_DEV_SPACES : []).concat(BASIC_SPACE);
+    if (envName === "CANARY") {
+      return COMMON_DEV_SPACES.concat(CANARY_DEV_SPACES).concat(BASIC_SPACE);
+    } 
+    // CI and STG
+    return COMMON_DEV_SPACES.concat(LCAP_SPACE).concat(BASIC_SPACE);
   }
 
   async initializing() {
@@ -174,7 +182,7 @@ module.exports = class extends Generator {
     // clearInterval(this.intervalId);
   }
 
-  end() { 
+  end() {
     const line = "-".repeat(_.size(this.targetUrl));
     this.log(`\n\n\nUploaded in just: ${this.uploadTime} millis`);
     this.log(line);
