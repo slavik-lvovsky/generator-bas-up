@@ -38,9 +38,6 @@
   "peerDependencies": {
     "puppeteer-page-objects": "latest"
   },
-  "bundledDependencies": [
-    "puppeteer-page-objects"
-  ],
   "engines": {
     "npm": ">= 4.0.0"
   }
